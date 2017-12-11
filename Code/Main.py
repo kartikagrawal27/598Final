@@ -53,7 +53,7 @@ for activity in activities:
     for trial in trials:
         for sensor in sensors:
             my_path = os.path.abspath(os.path.dirname(__file__))
-            path = os.path.join(my_path, "SensorData", str(activity),
+            path = os.path.join(my_path, "../SensorData", str(activity),
                                 "Sub01" + str(activity) + "_" + str(sensor) + "_" + str(trial) + ".txt")
             file = open(path, 'r')
 
@@ -157,22 +157,24 @@ for activity in activities:
         signals[activity][trial]['AYZPC1'] = PC_YZacc
         signals[activity][trial]['GPC1'] = PC_gyroscope
 
-R_bin=[]
-Power_bands=[]
+
 
 main_features=[]
 for activity in activities:
-    for trial in trials:
+    for trial in trials[0:4]:
         trial_features=[]
         for prop in properties:
+            R_bin=[]
+            Power_bands=[]
             sig=signals[activity][trial][prop]
             sig=np.array(sig)
             # 5 bins acutocorrelation
             R=signal.correlate(sig,sig,"same")
             # need better peak detection method
             R_bin_peak=Local_peakdetection(sig,30,1)  
+
             if len(R_bin_peak)>=10:
-                for i in range (0,4):
+                for i in range (0,5):
                     R_bin.append(R_bin_peak[2*i])
             else:
                 print("Autocorrelation bins < 5")
@@ -180,18 +182,28 @@ for activity in activities:
             RMS = np.sqrt(np.mean(sig**2))
             # Power bands * 10
             FFT=np.fft.fft(sig)
-            for i in range (0,9):
+            for i in range (0,10):
                 Power_bands.append(abs(FFT[int(sig.size/10)*i]))
             # Mean, std, kurtosis, interquartile range
             Mean = np.mean(sig)
             Std = np.std(sig)
             Kurt = stats.kurtosis(sig)
             Iqr = stats.iqr(sig)
-            prop_features=[]
-            prop_features=R_bin+RMS+Power_bands+Mean+Std+Kurt+Iqr
-            #prop_features=np.array([R_bin,RMS,Power_bands,Mean,Std,Kurt,Iqr])
-            trial_features=np.array([trial_features,prop_features])
+
+            prop_features = []
+
+            for val in R_bin:
+                prop_features.append(val)
+            prop_features.append(RMS)
+            prop_features = prop_features + Power_bands
+            prop_features.append(Mean)
+            prop_features.append(Std)
+            prop_features.append(val)
+            prop_features.append(Iqr)
+            trial_features = trial_features + prop_features
+            print(len(trial_features))
         main_features.append(trial_features)
+
         
         
 

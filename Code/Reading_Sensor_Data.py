@@ -5,6 +5,7 @@ Created on Mon Dec  4 13:40:25 2017
 @author: Chen-Zhang Xiao
 """
 import numpy as np
+from scipy import signal
 import os
 import os.path
 from collections import defaultdict
@@ -48,3 +49,8 @@ for activity in activities:
 			data[str(activity)][str(trial)][str(sensor)]['y'] = ys
 			data[str(activity)][str(trial)][str(sensor)]['z'] = zs
 
+mergedTrainingX = data['Bench Press']['t1']['accelerometer']['x'] + data['Bench Press']['t2']['accelerometer']['x'] + data['Bench Press']['t3']['accelerometer']['x'] + data['Bench Press']['t4']['accelerometer']['x']
+mergedTrainingY = data['Bench Press']['t1']['accelerometer']['y'] + data['Bench Press']['t2']['accelerometer']['y'] + data['Bench Press']['t3']['accelerometer']['y'] + data['Bench Press']['t4']['accelerometer']['y']
+mergedTrainingZ = data['Bench Press']['t1']['accelerometer']['z'] + data['Bench Press']['t2']['accelerometer']['z'] + data['Bench Press']['t3']['accelerometer']['z'] + data['Bench Press']['t4']['accelerometer']['z']
+
+b,a  = signal.butter()
